@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - /opt/data:/opt/data:ro
+      - /opt/data/home/Documents/Obsidian Vault:/opt/data/home/Documents/Obsidian Vault:ro
+      - /opt/data/home/Documents/Disertasi:/opt/data/home/Documents/Disertasi:ro
+      - /opt/data/kanban.db:/opt/data/kanban.db:ro
+      - /opt/data/kanban/boards:/opt/data/kanban/boards:ro
+      - /opt/data/.env:/opt/data/.env:ro
+      - /opt/data/config.yaml:/opt/data/config.yaml:ro
+      - /opt/data/profiles:/opt/data/profiles:ro
+      - /opt/hermes/.venv/bin/hermes:/opt/hermes/.venv/bin/hermes:ro
+      - /opt/data/home/.npm-global/bin:/opt/data/home/.npm-global/bin:ro
+    network_mode: host
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    environment:
+      - VITE_API_BASE=http://localhost:8000/api
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+networks:
+  default:
+    name: mission-control-network
